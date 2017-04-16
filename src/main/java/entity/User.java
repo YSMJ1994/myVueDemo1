@@ -2,11 +2,13 @@ package entity;
 
 import org.springframework.stereotype.Component;
 
+import java.io.Serializable;
+
 /**
  * 创建自: Sober 时间: 2017/4/13.
  */
 @Component
-public class User {
+public class User implements Serializable {
     private int id;
     private String username;
     private String password;

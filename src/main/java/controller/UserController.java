@@ -1,56 +1,64 @@
 package controller;
 
 import entity.User;
+import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 import service.UserService;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 创建自: Sober 时间: 2016/12/2.
  */
-@Controller
+@RestController
 public class UserController {
     @Autowired
     private UserService userService;
 
-    @RequestMapping(value = "/queryUserList",method = {RequestMethod.POST,RequestMethod.GET})
+    @RequestMapping(value = "/queryUserList", method = {RequestMethod.POST, RequestMethod.GET})
     @ResponseBody
-    public List<User> queryUserList() throws Exception{
-        return userService.queryUserList();
+    public String queryUserList() throws Exception {
+        JSONArray jsonArray = JSONArray.fromObject(userService.queryUserList());
+        return jsonArray.toString();
     }
 
-    @RequestMapping(value = "/queryUserById",method = {RequestMethod.POST,RequestMethod.GET})
+    @RequestMapping(value = "/queryUserById", method = {RequestMethod.POST, RequestMethod.GET})
     @ResponseBody
-    public User queryUserById(int id) throws Exception{
-        return userService.queryUserById(id);
+    public String queryUserById(@RequestBody String user) throws Exception {
+        JSONObject jsonId = JSONObject.fromObject(user);
+        JSONObject json = JSONObject.fromObject(userService.queryUserById(jsonId.getInt("id")));
+        return json.toString();
     }
 
-    @RequestMapping(value = "/addUser",method = {RequestMethod.POST,RequestMethod.GET})
-    public void addUser(String user) throws Exception{
+    @RequestMapping(value = "/addUser", method = RequestMethod.POST)
+    public void addUser(@RequestBody String user) throws Exception {
+        List<User>  list =  userService.queryUserList();
         User u = new User();
         JSONObject jsonObject = JSONObject.fromObject(user);
         u.setUsername(jsonObject.getString("username"));
         u.setPassword(jsonObject.getString("password"));
         u.setCreate_time(new SimpleDateFormat("yyyy-MM-dd hh-mm-ss").format(new Date()));
+        for(User us: list) {
+            if(us.getUsername().equals(u.getUsername())) {
+                return;
+            }
+        }
         userService.addUser(u);
     }
 
-    @RequestMapping(value = "/deleteUserById",method = {RequestMethod.POST,RequestMethod.GET})
-    public void deleteUserById(int id) throws Exception{
-        userService.deleteUserById(id);
+    @RequestMapping(value = "/deleteUserById", method = {RequestMethod.POST, RequestMethod.GET})
+    public void deleteUserById(@RequestBody String id) throws Exception {
+        JSONObject jsonObject = JSONObject.fromObject(id);
+        userService.deleteUserById(jsonObject.getInt("id"));
     }
 
-    @RequestMapping(value = "/updateUser",method = {RequestMethod.POST,RequestMethod.GET})
-    @ResponseBody
-    public void updateUser(String user) throws Exception{
+    @RequestMapping(value = "/updateUser", method = {RequestMethod.POST, RequestMethod.GET})
+    public void updateUser(@RequestBody String user) throws Exception {
         User u = new User();
         JSONObject jsonObject = JSONObject.fromObject(user);
         u.setId(jsonObject.getInt("id"));
@@ -58,5 +66,10 @@ public class UserController {
         u.setPassword(jsonObject.getString("password"));
         u.setCreate_time(jsonObject.getString("create_time"));
         userService.updateUser(u);
+    }
+
+    @RequestMapping(value = "/test", method = RequestMethod.POST)
+    public void test(@RequestBody Map map) throws Exception {
+        System.out.println(map.get("test"));
     }
 }
