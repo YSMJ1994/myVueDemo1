@@ -7,5 +7,11 @@
       <schema-pattern>vuedemo.*</schema-pattern>
       <default-schemas>vuedemo.*</default-schemas>
     </data-source>
+    <data-source name="MySQL - mydemo@localhost" uuid="d9b06bb3-c383-4940-9315-38d73d689ff9">
+      <secret-storage>master_key</secret-storage>
+      <user-name>root</user-name>
+      <schema-pattern>mydemo.*</schema-pattern>
+      <default-schemas>mydemo.*</default-schemas>
+    </data-source>
   </component>
 </project>
